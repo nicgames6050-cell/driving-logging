@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driving Log</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <meta name="theme-color" content="#1c1c1c">
+  <style>
+    body { background:#1c1c1c; color:white; font-family:Arial, sans-serif; text-align:center; padding:2rem; }
+    input, textarea { display:block; margin:1rem auto; padding:.5rem; width:80%; }
+    button { padding:.5rem 1rem; background:#333; color:white; border:none; border-radius:8px; }
+    nav { position:fixed; bottom:0; left:0; width:100%; background:#222; display:flex; justify-content:space-around; padding:.5rem 0; }
+    nav a { color:white; text-decoration:none; }
+    iframe { width:100%; height:80vh; border:none; }
+  </style>
+</head>
+<body>
+  <div id="page1">
+    <h1>Driving Log</h1>
+    <form id="driveForm">
+      <input type="number" id="minutes" placeholder="Minutes Drove" required>
+      <textarea id="notes" placeholder="Additional Information"></textarea>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div id="page2" style="display:none;">
+    <h1>Log Records</h1>
+    <iframe src="https://docs.google.com/spreadsheets/d/1mWv9qLkjmtTP-yIKymjmBvF6-MkuuA1xALk7M6ycGJM/edit?usp=sharing"></iframe>
+  </div>
+
+  <nav>
+    <a href="#" onclick="showPage('page1')">Log Hours</a>
+    <a href="#" onclick="showPage('page2')">View Logs</a>
+  </nav>
+
+  <script>
+    function showPage(page) {
+      document.getElementById('page1').style.display = (page === 'page1') ? 'block' : 'none';
+      document.getElementById('page2').style.display = (page === 'page2') ? 'block' : 'none';
+    }
+
+    document.getElementById("driveForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      const minutes = document.getElementById("minutes").value;
+      const notes = document.getElementById("notes").value || "None";
+      const date = new Date().toISOString().split('T')[0];
+
+      const url = "https://docs.google.com/forms/d/e/1FAIpQLSfvuNMRbaeXYqDSNTkBfAbERwwMzvGctfVkzBu6lLJrZbV5WA/formResponse" +
+        "?entry.2022091739=" + encodeURIComponent(minutes) +
+        "&entry.558305075=" + encodeURIComponent(date) +
+        "&entry.1084333853=" + encodeURIComponent(notes);
+
+      fetch(url, { method: "POST", mode: "no-cors" })
+        .then(() => { alert("Submitted!"); document.getElementById("driveForm").reset(); });
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  </script>
+</body>
+</html>
